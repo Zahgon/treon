@@ -34,7 +34,7 @@ from .task import Task
 
 DEFAULT_THREAD_COUNT = 10
 
-LOG = logging.getLogger('treon')
+LOG = logging.getLogger("treon")
 
 
 def main():
@@ -44,8 +44,8 @@ def main():
         sys.exit(__doc__)
 
     setup_logging(arguments)
-    LOG.info('Executing treon version %s', __version__)
-    thread_count = arguments['--threads'] or DEFAULT_THREAD_COUNT
+    LOG.info("Executing treon version %s", __version__)
+    thread_count = arguments["--threads"] or DEFAULT_THREAD_COUNT
     notebooks = get_notebooks_to_test(arguments)
     tasks = [Task(notebook) for notebook in notebooks]
     print_test_collection(notebooks)
@@ -57,12 +57,12 @@ def main():
 
 
 def setup_logging(arguments):
-    logging.basicConfig(format='%(message)s')
+    logging.basicConfig(format="%(message)s")
     LOG.setLevel(loglevel(arguments))
 
 
 def loglevel(arguments):
-    verbose = arguments['--verbose']
+    verbose = arguments["--verbose"]
     return logging.DEBUG if verbose else logging.INFO
 
 
@@ -76,9 +76,9 @@ def print_test_result(tasks):
     succeeded = [t.file_path for t in tasks if t.is_successful]
     failed = [t.file_path for t in tasks if not t.is_successful]
     variables = {
-        'succeeded_count': len(succeeded),
-        'failed_count': len(failed),
-        'total': len(tasks)
+        "succeeded_count": len(succeeded),
+        "failed_count": len(failed),
+        "total": len(tasks),
     }
 
     message = textwrap.dedent("""
@@ -87,15 +87,21 @@ def print_test_result(tasks):
               -----------------------------------------------------------------------\n""")
 
     if succeeded:
-        message += '       -- PASSED \n'.join(succeeded) + '       -- PASSED \n'
+        message += "       -- PASSED \n".join(succeeded) + "       -- PASSED \n"
 
     if failed:
         has_failed = True
-        message += '       -- FAILED \n'.join(failed) + '       -- FAILED \n'
+        message += "       -- FAILED \n".join(failed) + "       -- FAILED \n"
 
-    message += '-----------------------------------------------------------------------\n'
-    message += '{succeeded_count} succeeded, {failed_count} failed, out of {total} notebooks tested.\n'.format(**variables)
-    message += '-----------------------------------------------------------------------\n'
+    message += (
+        "-----------------------------------------------------------------------\n"
+    )
+    message += "{succeeded_count} succeeded, {failed_count} failed, out of {total} notebooks tested.\n".format(
+        **variables
+    )
+    message += (
+        "-----------------------------------------------------------------------\n"
+    )
     LOG.info(message)
     return has_failed
 
@@ -105,44 +111,16 @@ def print_test_collection(notebooks):
               -----------------------------------------------------------------------
               Collected following Notebooks for testing
               -----------------------------------------------------------------------\n""")
-    message += '\n'.join(notebooks) + '\n'
-    message += '-----------------------------------------------------------------------\n'
+    message += "\n".join(notebooks) + "\n"
+    message += (
+        "-----------------------------------------------------------------------\n"
+    )
     LOG.debug(message)
 
 
 def filter_results(results, args):
-    for exclude_str in args['--exclude']:
-        exclude_abs = os.path.abspath(os.path.expanduser(exclude_str))
-        if os.path.isdir(exclude_abs):
-            exclude_abs += os.sep
-        results = [file for file in results if not os.path.abspath(file).startswith(exclude_abs)]
-    return results
+    pass
 
 
 def get_notebooks_to_test(args):
-    paths = args['PATH'] or [os.getcwd()]
-    result = []
-
-    for path in paths:
-        current_result = []
-
-        if os.path.isdir(path):
-            LOG.info('Recursively scanning %s for notebooks...', path)
-            path = os.path.join(path, '')  # adds trailing slash (/) if it's missing
-            glob_path = path + '**/*.ipynb'
-            current_result = glob.glob(glob_path, recursive=True)
-        elif os.path.isfile(path):
-            if path.lower().endswith('.ipynb'):
-                LOG.debug('Testing notebook %s', path)
-                current_result = [path]
-            else:
-                sys.exit('{path} is not a Notebook'.format(path=path))
-        else:
-            sys.exit('{path} is not a valid path'.format(path=path))
-
-        if not current_result:
-            sys.exit('No notebooks to test in {path}'.format(path=path))
-
-        result.extend(current_result)
-
-    return filter_results(result, args)
+    pass
